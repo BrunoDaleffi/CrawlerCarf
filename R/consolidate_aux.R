@@ -53,6 +53,51 @@ choose_pdf <- function(id, path){
   
 }
 
+
+#' choose pdf file to classificate the section of a lawsuit and return the location of file
+#' 
+#' @param id a lawsuit id
+#' @param path directory where exists the directory of pdf decisions
+#' @return location of pdf file choosed
+caminho_pdf <- function(id, path){
+  
+  tem_decisao <- function(str){
+    str_detect(str,'decisao')
+  }
+  tem_pdf <- function(str){
+    str_detect(str,'pdf')
+  }
+  
+  files <- list.files(str_c(path,'/',id))
+  
+  
+  eh_dec<- files %>% tem_decisao
+  
+  eh_pdf<- files %>% tem_pdf
+  
+  qtd_pdf <- sum(eh_pdf)
+  
+  if(any(eh_dec)){
+    x<- which(eh_dec)
+    file <- files[x]
+  }
+  if(!any(eh_dec) & qtd_pdf == 1){ 
+    x<- which(eh_pdf)
+    file = files[x]
+  }
+  if(!any(eh_dec) & qtd_pdf > 1){
+    x <- which(eh_pdf) %>% sample(1)
+    
+    file <- files[x]
+  }
+  if(qtd_pdf == 0){
+    file <- ''
+  }
+  
+  return(paste0(path,'/',id,'/',file))
+  
+}
+
 #' Get informations about section of a lawsuit
 #'
 #' @param id a lawsuit id

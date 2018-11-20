@@ -1,3 +1,4 @@
+
 #' Clean an id lawsuit
 #' @param str lawsuit id to clean
 #' 

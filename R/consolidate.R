@@ -19,7 +19,7 @@ all_job <- function(date_min, date_max, path_html, path_pdf, max_page = Inf, par
   mesano_min <- stringr::str_replace_all(date_min, '/','.')
   mesano_max <- stringr::str_replace_all(date_max, '/','.')
   
-  #nome da pasta a ser criada
+  #nome da pasta a ser criada dentro de path_html
   path1 <- glue::glue(path_html, "/", mesano_min, '-ate-',mesano_max)
   
   #baixa as paginas e seus respectivos htmls
@@ -108,7 +108,7 @@ all_job <- function(date_min, date_max, path_html, path_pdf, max_page = Inf, par
   
   future_download_lawsuit_new(id= ids, path = path_pdf)
   
-  #nova classifica turmas e secoes e camaras
+  #nova classifica turmas e secoes e camaras. Ele classifica usando o pdf baixado com future_download_lawsuit_new
   
   turmas<-future_classificador_turma(id = ids,path = path_pdf)
   
@@ -125,13 +125,14 @@ all_job <- function(date_min, date_max, path_html, path_pdf, max_page = Inf, par
     mutate(secao = ifelse(is.na(SECAO), 'NAO IDENTIFICADO',SECAO),
            camara = ifelse(is.na(CAMARA), 'NAO IDENTIFICADO', CAMARA),
            turma = ifelse(is.na(TURMA), 'NAO IDENTIFICADO',TURMA)) %>%
-    select(-processo, - SECAO, - CAMARA, - TURMA)
+    select(-processo, - SECAO, - CAMARA, - TURMA) %>%
+    parse_results_()
   
   saveRDS(d_vis_novo, 'data/d_vis_ultimo.rds')
   
   print(str_c('Tudo pronto =) ', Sys.time()))
   
-  print(str_c('Tempo total: ', start-Sys.time()))
+  print(str_c('Tempo total: ', Sys.time()-start))
 }
 
 #' Consolidate pages, decisions, and comprot

@@ -1,5 +1,5 @@
 
-#' Remasterized download_lawsuits function
+#' Remasterized download_lawsuits function (Baixa o html das movimentações e os pdfś dos processos)
 #'
 #' @param id A character vector with one or more lawsuit numbers (in numeric format if's possible)
 #' @param path The directory where to save downloaded files
@@ -16,7 +16,7 @@ download_lawsuit_new <-function(id, path,download_pdfs = TRUE){
   
 }
 
-#' Remasterized download_lawsuits function from future
+#' Remasterized download_lawsuits function from future (Baixa o html das movimentações e os pdfś dos processos)
 #'
 #' @param id A character vector with one or more lawsuit numbers (in numeric format if's possible)
 #' @param path The directory where to save downloaded files
@@ -29,7 +29,7 @@ future_download_lawsuit_new <-function(id, path,download_pdfs = TRUE){
   
 }
 
-#' Download lawsuits from the CARF website
+#' Download lawsuits from the CARF website 
 #'
 #' @param id A character vector with one or more lawsuit numbers
 #' @param path The directory where to save downloaded files
@@ -52,7 +52,7 @@ download_lawsuit <- function(id, path = ".", download_pdfs = TRUE) {
   return(purrr::flatten_chr(files))
 }
 
-#' Download CARF decisions
+#' Download CARF decisions (Baixa o html dadecisao)
 #'
 #' @param id A character vector with one or more decision numbers
 #' @param path Directory where to save downloaded files
@@ -60,20 +60,40 @@ download_lawsuit <- function(id, path = ".", download_pdfs = TRUE) {
 #' @return A character vetor with the paths to the downloaded files
 #'
 #' @export
-download_decision <- function(id, path = ".", download_pdfs = TRUE) {
+download_decision <- function(id, path = ".", download_pdfs = F) {
 
   if (download_pdfs) { stop("Can't download PDFs yet") }
-
-  # NOTE: apperently intervals aren't necessary, so this isn't a param anymore
-  interval <- c("02/2016", "02/2017")
 
   # Create directory if necessary
   dir.create(path, FALSE, TRUE)
   path <- normalizePath(path)
 
   # Iterate over decisions to download them
-  files <- purrr::map(id, download_decision_, path, interval, download_pdfs)
+  files <- purrr::map(id, download_decision_, path,  download_pdfs)
 
+  return(purrr::flatten_chr(files))
+}
+
+
+#' Download CARF decisions future (Baixa o html dadecisao)
+#'
+#' @param id A character vector with one or more decision numbers
+#' @param path Directory where to save downloaded files
+#' @param download_pdfs Whether or not to download the attachments
+#' @return A character vetor with the paths to the downloaded files
+#'
+#' @export
+future_download_decision <- function(id, path = ".", download_pdfs = F) {
+  
+  if (download_pdfs) { stop("Can't download PDFs yet") }
+  
+  # Create directory if necessary
+  dir.create(path, FALSE, TRUE)
+  path <- normalizePath(path)
+  
+  # Iterate over decisions to download them
+  files <- furrr::future_map(id, download_decision_, path,  download_pdfs)
+  
   return(purrr::flatten_chr(files))
 }
 
@@ -136,7 +156,7 @@ download_decision_year <- function(year, path = ".", min_page = 1, max_page = In
 }
 
 
-#' Download all CARF decisions from a period
+#' Download all CARF decisions from a period (Baixa o html dadecisao)
 #'
 #' @param date_min First date of the range. The format need to be like 01/2018
 #' @param date_max Final date of the range (with same year that date_min). The format need to be like 01/2018

@@ -1,4 +1,4 @@
-#' remasterized auxiliary function to download one lawsuit
+#' remasterized auxiliary function to download one lawsuit (baixa o html da movimentação e pdf's do processo)
 #'
 #' @param id Lawsuit number
 #' @param path Folder where to save files
@@ -129,33 +129,39 @@ download_lawsuit_ <- function(id, path, interval, download_pdfs) {
 #'
 #' @param id Character vector with a decision numbers
 #' @param path Directory where to save file
-#' @param interval A vector with two dates for beginning and end of query
 #' @param download_pdfs Whether or not to download the attachments
 #' @return A character vetor with the path to the downloaded file
-download_decision_ <- function(id, path, interval, download_pdfs) {
+#' 
+download_decision_ <- function(id, path, download_pdfs) {
 
   # URLs
   base <- "http://carf.fazenda.gov.br/sincon/public/pages/ConsultarJurisprudencia/"
   u_search <- glue::glue(base, "consultarJurisprudenciaCarf.jsf")
   u_page <- glue::glue(base, "listaJurisprudenciaCarf.jsf")
-
+  
+  
+  # Create directory if necessary
+  dir.create(glue::glue(path, "/", id), FALSE, TRUE)
+  path <- normalizePath(glue::glue(path, "/",id))
+  
   # Ping the website to get basic info
   r_ping <- httr::GET(u_search, httr::config("ssl_verifypeer" = FALSE))
-
+  
   # Get j_id
   j_id <- r_ping %>%
     xml2::read_html() %>%
     rvest::html_node("#botaoPesquisarCarf") %>%
     rvest::html_attr("onclick") %>%
     stringr::str_extract("j_id[0-9]{1,2}")
-
+  
+ 
   # Build search query
   search_query <- list(
     "AJAXREQUEST" = "_viewRoot",
     "consultaJurisprudenciaForm" = "consultaJurisprudenciaForm",
-    "dataInicialInputDate" = interval[1],
-    "dataFinalInputDate" = interval[2],
-    "campo_pesquisa1" = "3",
+    "dataInicialInputDate" = "02/2016",
+    "dataFinalInputDate" = "02/2017",
+    "campo_pesquisa1" = "1",
     "valor_pesquisa1" = id,
     "campo_pesquisa2" = "1",
     "campo_pesquisa3" = "1",
@@ -186,9 +192,10 @@ download_decision_ <- function(id, path, interval, download_pdfs) {
     xml2::read_html() %>%
     xml2::xml_find_first("//*[@id='formAcordaos:numDecisao']") %>%
     stringr::str_replace_all("[^0-9]", "")
-
+  
   # Create lawsuit directory
   path <- glue::glue(path, "/", lwst_id, "_", dcis_id)
+  
   dir.create(path, FALSE, TRUE)
   file <- glue::glue(path, "/", lwst_id, "_", dcis_id, ".html")
 
