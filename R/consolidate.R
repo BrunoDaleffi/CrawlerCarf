@@ -1,6 +1,4 @@
-
-
-#' All job on a only one command
+0#' All job on a only one command
 #'
 #' @param date_min minimum date to explore on format "09/2018"
 #' @param date_max maximum date to explore on format "09/2018"
@@ -33,7 +31,6 @@ all_job <- function(date_min, date_max, path_html, path_pdf, max_page = Inf, par
   #pega o caminho de cada pagina
   caminho_paginas <- str_c(path1,'/',list.files(path1))
   
-  #função que pega o caminho de cada arquivo dentro da pagina path
   pega_arquivos <- function(path){
     arquivo <- str_c(path,'/',list.files(path))
     return(arquivo)
@@ -106,6 +103,7 @@ all_job <- function(date_min, date_max, path_html, path_pdf, max_page = Inf, par
   #pega os pdf's dos processos
   ids <- tabelao$n_processo %>% map_chr(clean_lawsuit)
   
+  #baixa os pdfs
   future_download_lawsuit_new(id= ids, path = path_pdf)
   
   #nova classifica turmas e secoes e camaras. Ele classifica usando o pdf baixado com future_download_lawsuit_new
@@ -195,13 +193,12 @@ future_classificador_turma <- function(id, path){
 #' @return A tibble with aggregated data about CARF
 #'
 #' @export
-consolidate <- function(pages, decisions, comprot) {
-
-  detect_result <- function(result, decision, pattern_decision, type_appeal, replacement) {
+consolidate <- function(pages, decisions, comprot){
+  
+  detect_result <- function(result, decision, pattern_decision, type_appeal, replacement){
     pattern_appeal <- c("RECURSO DE OFICIO", "RECURSO ESPECIAL DO PROCURADOR")
-    ifelse(decision == pattern_decision & type_appeal %in% pattern_appeal, replacement, result)
-  }
-
+    ifelse(decision == pattern_decision & type_appeal %in% pattern_appeal, replacement, result)}
+  
   consolidate_decisions(pages, decisions) %>%
     consolidate_origins(comprot) %>%
     consolidate_states() %>%
@@ -230,4 +227,5 @@ consolidate <- function(pages, decisions, comprot) {
       result = stringr::str_to_upper(result),
       result = ifelse(stringr::str_detect(result, "_"), "VAZIO", result),
       type = ifelse(stringr::str_detect(type, "IDENTIF"), "NAO IDENTIFICADO", type))
+  
 }
